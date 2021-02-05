@@ -9,6 +9,9 @@ import helmet from 'helmet';
 import indexRouter from './routes/index';
 import usersRouter from './routes/users';
 
+const { Provider } = require('oidc-provider');
+const configuration = require('./support/configuration');
+
 const app = express();
 app.use(helmet());
 
@@ -40,6 +43,23 @@ app.use((err, req, res, next) => {
   // render the error page
   res.status(err.status || 500);
   res.render('error');
+});
+const { PORT = 3000, ISSUER = `http://127.0.0.1:${PORT}` } = process.env;
+let server;
+(async () => {
+  console.log('>>ISSUER', ISSUER);
+  console.log('>>configuration', configuration);
+  const provider = new Provider(ISSUER, { ...configuration });
+
+  // routes(app, provider);
+  app.use(provider.callback);
+  server = app.listen(PORT, () => {
+    console.log(`application is listening on port ${PORT}, check its /.well-known/openid-configuration`);
+  });
+})().catch((err) => {
+  if (server && server.listening) server.close();
+  console.error(err);
+  process.exitCode = 1;
 });
 
 export default app;
