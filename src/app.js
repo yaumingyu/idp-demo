@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-expressions */
+/* eslint-disable max-len */
 /* eslint-disable no-undef */
 import createError from 'http-errors';
 import express, { json, urlencoded } from 'express';
@@ -49,12 +51,27 @@ let server;
 (async () => {
   console.log('>>ISSUER', ISSUER);
   console.log('>>configuration', configuration);
-  const provider = new Provider(ISSUER, { ...configuration });
+  const configuration2 = {
+    // ... see available options /docs
+    clients: [{
+      client_id: 'foo',
+      client_secret: 'bar',
+      redirect_uris: ['http://lvh.me:8080/cb'],
+      // + other client properties
+    }],
+  };
 
-  // routes(app, provider);
-  app.use(provider.callback);
-  server = app.listen(PORT, () => {
-    console.log(`application is listening on port ${PORT}, check its /.well-known/openid-configuration`);
+  const oidc = new Provider(ISSUER, configuration2);
+
+  // express/nodejs style application callback (req, res, next) for use with express apps, see /examples/express.js
+  oidc.callback;
+
+  // koa application for use with koa apps, see /examples/koa.js
+  oidc.app;
+
+  // or just expose a server standalone, see /examples/standalone.js
+  server = oidc.listen(3000, () => {
+    console.log('oidc-provider listening on port 3000, check http://localhost:3000/.well-known/openid-configuration');
   });
 })().catch((err) => {
   if (server && server.listening) server.close();
