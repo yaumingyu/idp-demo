@@ -15,17 +15,12 @@ interactions.add(selectAccount, 0);
 module.exports = {
   clients: [
     {
-      client_id: '1',
-      client_secret: '1',
+      client_id: 'foo',
+      client_secret: 'bar',
       grant_types: ['refresh_token', 'authorization_code'],
       redirect_uris: ['http://localhost:8080/app1.html', 'http://localhost:8080/app2.html', 'http://localhost:3001/callback'],
     },
-    {
-      client_id: '2',
-      client_secret: '2',
-      grant_types: ['refresh_token', 'authorization_code'],
-      redirect_uris: ['http://localhost:8080/app1.html', 'http://localhost:8080/app2.html'],
-    },
+
   ],
   interactions: {
     policy: interactions,
