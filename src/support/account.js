@@ -83,6 +83,8 @@ class Account {
     // token is a reference to the token used for which a given account is being loaded,
     //   it is undefined in scenarios where account claims are returned from authorization endpoint
     // ctx is the koa request context
+    console.log('>>>>findAccount id', id);
+    console.log('>>>>findAccount token', token);
     if (!store.get(id)) new Account(id); // eslint-disable-line no-new
     return store.get(id);
   }

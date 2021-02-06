@@ -8,14 +8,18 @@ import cookieParser from 'cookie-parser';
 import logger from 'morgan';
 
 import helmet from 'helmet';
+import dotenv from 'dotenv';
 import indexRouter from './routes/index';
 import usersRouter from './routes/users';
 // const configuration = require('./support/configuration');
 import Account from './support/account';
+import mongoAdapter from './adapters/mongodb';
+
+dotenv.config();
 
 const { Provider } = require('oidc-provider');
 
-const routes = require('./routes/express');
+// const routes = require('./routes/express');
 
 const app = express();
 app.use(helmet());
@@ -52,15 +56,15 @@ app.use((err, req, res, next) => {
 const { PORT, ISSUER = `http://127.0.0.1:${PORT}` } = process.env;
 let server;
 (async () => {
-  const configuration2 = {
+  const configuration = {
     // ... see available options /docs
     clients: [
       {
         client_id: 'foo',
         client_secret: 'bar',
         redirect_uris: [
-          'http://localhost:8080/app1.html',
-          'http://localhost:8080/app2.html',
+          'http://localhost:8081/app1.html',
+          'http://localhost:8081/app2.html',
         ],
       // + other client properties
       },
@@ -68,7 +72,7 @@ let server;
         client_id: 'foo2',
         client_secret: 'bar',
         grant_types: ['refresh_token', 'authorization_code'],
-        redirect_uris: ['http://localhost:8080/app1.html', 'http://localhost:8080/app2.html', 'http://localhost:3001/callback'],
+        redirect_uris: ['http://localhost:8081/app1.html', 'http://localhost:8081/app2.html', 'http://localhost:3001/callback'],
       },
     ],
     claims: {
@@ -127,19 +131,20 @@ let server;
     },
 
   };
-  configuration2.findAccount = Account.findAccount;
+  configuration.findAccount = Account.findAccount;
 
-  console.log('>>>configuration2', configuration2);
-
+  console.log('>>>configuration', configuration);
+  let adapter;
+  if (process.env.MONGODB_URI) {
+    adapter = require('./adapters/mongodb').default; // eslint-disable-line global-require
+    await adapter.connect();
+  }
   const oidc = new Provider(ISSUER, {
-    ...configuration2,
+    adapter,
+    ...configuration,
   });
 
   // express/nodejs style application callback (req, res, next) for use with express apps, see /examples/express.js
-
-  // koa application for use with koa apps, see /examples/koa.js
-
-  routes(app, oidc);
   app.use(oidc.callback);
   // or just expose a server standalone, see /examples/standalone.js
   server = oidc.listen(PORT, () => {
