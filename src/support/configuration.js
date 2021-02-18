@@ -57,7 +57,7 @@ module.exports = {
      * 确保尽快禁用此功能并将其替换为实际的前端流程和最终用户身份验证流程。
      * 这些视图并不意味着实际用户都不会看到
      */
-    // devInteractions: { enabled: false }, // defaults to true
+    devInteractions: { enabled: false }, // defaults to true
 
     deviceFlow: { enabled: true }, // defaults to false
     introspection: { enabled: true }, // defaults to false

@@ -1,17 +1,17 @@
 /* eslint-disable no-console, max-len, camelcase, no-unused-vars */
-const { strict: assert } = require('assert');
-const querystring = require('querystring');
-const { inspect } = require('util');
+import { strict as assert } from 'assert';
+import { stringify } from 'querystring';
+import { inspect } from 'util';
 
-const isEmpty = require('lodash/isEmpty');
-const { urlencoded } = require('express'); // eslint-disable-line import/no-unresolved
+import isEmpty from 'lodash/isEmpty';
+import { urlencoded } from 'express'; // eslint-disable-line import/no-unresolved
 
-const Account = require('../support/account').default;
+import Account from '../support/account';
 
 const body = urlencoded({ extended: false });
 
 const keys = new Set();
-const debug = (obj) => querystring.stringify(Object.entries(obj).reduce((acc, [key, value]) => {
+const debug = (obj) => stringify(Object.entries(obj).reduce((acc, [key, value]) => {
   keys.add(key);
   if (isEmpty(value)) return acc;
   acc[key] = inspect(value, { depth: null });
@@ -20,15 +20,12 @@ const debug = (obj) => querystring.stringify(Object.entries(obj).reduce((acc, [k
   encodeURIComponent(value) { return keys.has(value) ? `<strong>${value}</strong>` : value; },
 });
 
-module.exports = (app, provider) => {
+export default (app, provider) => {
   const { constructor: { errors: { SessionNotFound } } } = provider;
-  console.log('>>>view');
   app.use((req, res, next) => {
-    console.log('>>>req', req);
     const orig = res.render;
     // you'll probably want to use a full blown render engine capable of layouts
     res.render = (view, locals) => {
-      console.log('>>>view', view);
       app.render(view, locals, (err, html) => {
         if (err) throw err;
         orig.call(res, '_layout', {
