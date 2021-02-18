@@ -22,11 +22,13 @@ const debug = (obj) => querystring.stringify(Object.entries(obj).reduce((acc, [k
 
 module.exports = (app, provider) => {
   const { constructor: { errors: { SessionNotFound } } } = provider;
-  console.log('>>>>>>啊飒飒撒所');
+  console.log('>>>view');
   app.use((req, res, next) => {
+    console.log('>>>req', req);
     const orig = res.render;
     // you'll probably want to use a full blown render engine capable of layouts
     res.render = (view, locals) => {
+      console.log('>>>view', view);
       app.render(view, locals, (err, html) => {
         if (err) throw err;
         orig.call(res, '_layout', {
@@ -46,6 +48,7 @@ module.exports = (app, provider) => {
 
   app.get('/interaction/:uid', setNoCache, async (req, res, next) => {
     try {
+      console.log('/interaction/:uid', req);
       const {
         uid, prompt, params, session,
       } = await provider.interactionDetails(req, res);
@@ -53,7 +56,7 @@ module.exports = (app, provider) => {
       console.log('>>>>>>啊飒飒撒所', {
         uid, prompt, params, session,
       });
-      console.log('>>>>>>asbashb', client);
+      console.log('>>>>>>prompt.name', prompt.name);
       switch (prompt.name) {
         case 'select_account': {
           if (!session) {

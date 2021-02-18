@@ -1,4 +1,6 @@
-const { interactionPolicy: { Prompt, base: policy } } = require('oidc-provider'); // require('oidc-provider');
+import oidcProvider from 'oidc-provider';
+
+const { interactionPolicy: { Prompt, base: policy } } = oidcProvider; // require('oidc-provider');
 
 // copies the default policy, already has login and consent prompt policies
 const interactions = policy();
@@ -13,25 +15,29 @@ const selectAccount = new Prompt({
 interactions.add(selectAccount, 0);
 
 module.exports = {
+  // ... see available options /docs
   clients: [
     {
       client_id: 'foo',
       client_secret: 'bar',
-      grant_types: ['refresh_token', 'authorization_code'],
-      redirect_uris: ['http://localhost:8080/app1.html', 'http://localhost:8080/app2.html', 'http://localhost:3001/callback'],
+      redirect_uris: [
+        'http://localhost:8080/app1.html',
+        'http://localhost:8080/app2.html',
+      ],
+    // + other client properties
     },
-
+    {
+      client_id: 'foo2',
+      client_secret: 'bar',
+      grant_types: ['refresh_token', 'authorization_code'],
+      redirect_uris: ['http://localhost:8081/app1.html', 'http://localhost:8081/app2.html', 'http://localhost:3001/callback'],
+    },
   ],
   interactions: {
     policy: interactions,
     url(ctx, interaction) { // eslint-disable-line no-unused-vars
       return `/interaction/${ctx.oidc.uid}`;
     },
-  },
-  cookies: {
-    long: { signed: true, maxAge: (1 * 24 * 60 * 60) * 1000 }, // 1 day in ms
-    short: { signed: true },
-    keys: ['some secret key', 'and also the old rotated away some time ago', 'and one more'],
   },
   claims: {
     address: ['address'],
@@ -41,11 +47,17 @@ module.exports = {
       'nickname', 'picture', 'preferred_username', 'profile', 'updated_at', 'website', 'zoneinfo'],
   },
   features: {
-    sessionManagement: {
-      enabled: true,
-      keepHeaders: false,
-    },
-    devInteractions: { enabled: false }, // defaults to true
+    // sessionManagement: {
+    //   enabled: true,
+    //   keepHeaders: false,
+    // },
+    /**
+     * 与库捆绑在一起的开箱即用的交互视图使您可以在尝试oidc-provider时跳过无聊的前端部分。
+     * 输入任何用户名（将用作子声明值）和任何密码以继续。
+     * 确保尽快禁用此功能并将其替换为实际的前端流程和最终用户身份验证流程。
+     * 这些视图并不意味着实际用户都不会看到
+     */
+    // devInteractions: { enabled: false }, // defaults to true
 
     deviceFlow: { enabled: true }, // defaults to false
     introspection: { enabled: true }, // defaults to false
