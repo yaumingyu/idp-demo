@@ -114,14 +114,30 @@ export default (app, provider) => {
     try {
       const { prompt: { name } } = await provider.interactionDetails(req, res);
       assert.equal(name, 'login');
-      const account = await Account.findByLogin(req.body.login);
 
-      const result = {
-        select_account: {}, // make sure its skipped by the interaction policy since we just logged in
-        login: {
-          account: account.accountId,
-        },
-      };
+      // 在这里实现用户和密码的核对逻辑
+      console.log('>>>login', req.body.login);
+      console.log('>>>password', req.body.password);
+      const account = await Account.findByLogin(req.body.login, req.body.password);
+      console.log('>>>account', account);
+      let result;
+      if (account) {
+        result = {
+          select_account: {}, // make sure its skipped by the interaction policy since we just logged in
+          login: {
+            account: account.subject,
+            acr: 'dskjhaljdasdjlk',
+          },
+        };
+      } else {
+        result = {
+          // an error field used as error code indicating a failure during the interaction
+          error: 'access_denied',
+
+          // an optional description for this error
+          error_description: 'Insufficient permissions: scope out of reach for this Account',
+        };
+      }
 
       await provider.interactionFinished(req, res, result, { mergeWithLastSubmission: false });
     } catch (err) {

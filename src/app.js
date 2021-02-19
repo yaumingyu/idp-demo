@@ -10,9 +10,11 @@ import helmet from 'helmet';
 import { Provider } from 'oidc-provider';
 
 import dotenv from 'dotenv';
+import mongoose from 'mongoose';
 import Account from './support/account';
 import configuration from './support/configuration';
 import routes from './routes/interaction';
+import { clientRouter } from './routes';
 
 dotenv.config();
 
@@ -26,14 +28,16 @@ app.use(helmet());
 
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
-
+app.use('/clients', clientRouter);
 let server;
 (async () => {
   let adapter;
   if (process.env.MONGODB_URI) {
     adapter = require('./adapters/mongodb').default; // eslint-disable-line global-require
     await adapter.connect();
+    await mongoose.connect(process.env.MONGODB_URI, {});
   }
+
   const provider = new Provider(ISSUER, { adapter, ...configuration });
 
   if (process.env.NODE_ENV === 'production') {

@@ -1,4 +1,5 @@
 import nanoid from 'nanoid';
+import modelCollection from '../schemas/modelCollection';
 
 const store = new Map();
 const logins = new Map();
@@ -71,12 +72,11 @@ class Account {
     return logins.get(id);
   }
 
-  static async findByLogin(login) {
-    if (!logins.get(login)) {
-      logins.set(login, new Account(login));
-    }
-
-    return logins.get(login);
+  static async findByLogin(login, password) {
+    return modelCollection.AccountModel.findOne({
+      email: login,
+      encrypt_secret: password,
+    });
   }
 
   static async findAccount(ctx, id, token) { // eslint-disable-line no-unused-vars
