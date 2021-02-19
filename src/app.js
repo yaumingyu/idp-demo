@@ -9,9 +9,12 @@ import helmet from 'helmet';
 
 import { Provider } from 'oidc-provider';
 
+import dotenv from 'dotenv';
 import Account from './support/account';
 import configuration from './support/configuration';
 import routes from './routes/interaction';
+
+dotenv.config();
 
 const set = require('lodash/set');
 
@@ -28,7 +31,7 @@ let server;
 (async () => {
   let adapter;
   if (process.env.MONGODB_URI) {
-    adapter = require('./adapters/mongodb'); // eslint-disable-line global-require
+    adapter = require('./adapters/mongodb').default; // eslint-disable-line global-require
     await adapter.connect();
   }
   const provider = new Provider(ISSUER, { adapter, ...configuration });

@@ -47,10 +47,10 @@ module.exports = {
       'nickname', 'picture', 'preferred_username', 'profile', 'updated_at', 'website', 'zoneinfo'],
   },
   features: {
-    // sessionManagement: {
-    //   enabled: true,
-    //   keepHeaders: false,
-    // },
+    sessionManagement: {
+      enabled: true,
+      keepHeaders: false,
+    },
     /**
      * 与库捆绑在一起的开箱即用的交互视图使您可以在尝试oidc-provider时跳过无聊的前端部分。
      * 输入任何用户名（将用作子声明值）和任何密码以继续。

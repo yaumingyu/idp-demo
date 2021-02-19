@@ -46,7 +46,6 @@ const collections = new CollectionSet();
 
 class MongoAdapter {
   constructor(name) {
-    console.log('>>>name', name);
     this.name = snakeCase(name);
 
     // NOTE: you should never be creating indexes at runtime in production, the following is in

@@ -22,6 +22,7 @@ const debug = (obj) => stringify(Object.entries(obj).reduce((acc, [key, value]) 
 
 export default (app, provider) => {
   const { constructor: { errors: { SessionNotFound } } } = provider;
+  // 用于debug
   app.use((req, res, next) => {
     const orig = res.render;
     // you'll probably want to use a full blown render engine capable of layouts
@@ -45,14 +46,10 @@ export default (app, provider) => {
 
   app.get('/interaction/:uid', setNoCache, async (req, res, next) => {
     try {
-      console.log('/interaction/:uid', req);
       const {
         uid, prompt, params, session,
       } = await provider.interactionDetails(req, res);
       const client = await provider.Client.find(params.client_id);
-      console.log('>>>>>>啊飒飒撒所', {
-        uid, prompt, params, session,
-      });
       console.log('>>>>>>prompt.name', prompt.name);
       switch (prompt.name) {
         case 'select_account': {
